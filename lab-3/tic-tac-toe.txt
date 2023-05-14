@@ -1,0 +1,35 @@
+----- Development Environment Set Up -----
+
+1) (I already had node, vite, etc. installed)
+2) typed "npm create vite@latest" into terminal, selected appropriate choices
+3) ran "npm install" to install packages and "npm run dev" to run development server
+4) Cleaned up the directory, deleted unnecessary components.
+
+
+----- Creating the Game -----
+
+I got started by creating Square and Board components. The board is 3 squares in width and height. The board is then nested into the App component, which ultimately displays the application.
+
+As I was playing around with props, I noticed that you can set default values for props; by setting value="" in the parameter declaration, I made it so that the square is empty by default but takes a value as an optional prop.
+
+I continued to follow the tutorial and got state working within my Square components.
+
+After I lifted state to the board, my handleClick function stopped working because the state it accessed was no longer defined, so I had to delete it.
+
+I redefined the handleClick function in the Board component, and passed the function into the Square component. To avoid causing an infinite loop by calling the function in the prop declaration, per the tutorial's recommendation, I used the JavaScript arrow syntax to define mini-functions within the props.
+
+I was wondering why we need to make a copy of the array and call the setSquares() method rather than mutating the original array. According to the tutorial, it seems like it's better to do this because it allows for performance optimizations.
+
+I then completed the rest of the steps listed in the tutorial to complete the working tic-tac-toe game.
+
+
+----- Implementing Time Travel -----
+
+I followed the tutorial and got the history buttons to display properly.
+
+At first, I didn't understand how React was displaying multiple buttons. From my understanding now, this is working because the .map() function is creating an array of components, and then React seems to automatically display that array for us.
+
+I also understood that we have to be careful with how we're choosing keys; although the array index works in this case since the array is mutated chronologically, this is normally not the case.
+
+I also learned that it's important to be careful about when we use state. Often times, state is just completely unnecessary, and will only introduce more bugs into the game.
+

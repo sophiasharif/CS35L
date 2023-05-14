@@ -1,0 +1,38 @@
+To find the first commit, I used the command 
+
+$ git log --max-parents=0
+
+The first commit had an ID of 68b02c7b1464af59ca5f17c38b33d8afe781ce3b. The script I used to test if the commit is "good" or "bad" was the following: 
+
+------------------
+#!/bin/bash
+
+! grep -rq "Even newspaper reports present contradictory information." /Users/sophiasharif/Desktop/projects/tz
+
+exit $?
+------------------
+
+If grep finds a match, it will have a exit status of 0; however, this is bad commit, so we want and exit status of 1. This is why I put the "!" in front of the grep.  After writing this script, I ran:
+
+$ git bisect start HEAD 68b02c7b1464af59ca5f17c38b33d8afe781ce3b
+$ git bisect run ../project-4/check_line.sh
+
+This outputted a commit with the ID c12b432741eed9a422fbf99fa27af6e7a941d88b. I ran:
+
+$ git checkout c12b432741eed9a422fbf99fa27af6e7a941d88b
+$ grep -r "Even newspaper reports present contradictory information." .
+
+And found that the line is in the "northamerica" file. Here is where it was introduced:
+
+# From Paul Eggert (1995-12-19):
+# Indiana generally observes either EST all year, or CST/CDT,
+# but areas near Cincinnati and Louisville use those cities' timekeeping
+# and in 1969 and 1970 the whole state observed daylight time;
+# and there are other exceptions as noted below.
+# Shanks partitions Indiana into 345 regions, each with its own time history,
+# and writes ``Even newspaper reports present contradictory information.''
+# Fortunately, most of the complexity occurred before our cutoff date of 1970.
+
+We can see that the author is quoting the line and citing the original source, so this is not plagiarism. 
+
+

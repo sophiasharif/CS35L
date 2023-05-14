@@ -1,0 +1,9 @@
+#!/bin/bash
+
+input=$(cat)
+timezones=($(echo "$input" | grep "Date: " | grep -o ".....$" | sort -u ))
+
+for TZ in "${timezones[@]}"
+do
+    echo $TZ $(echo "$input" | grep -c -- $TZ)
+done

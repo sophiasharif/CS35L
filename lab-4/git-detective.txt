@@ -1,0 +1,56 @@
+Using the command 
+
+$ git log --grep="git merge-tree" v2.38.5..v2.39.3 
+
+I found that the original commit that contained the message in the assignment was the following:
+
+-----------------------------------------------
+commit 19118cb8570e499e1a56e81740cee3d1c1206b44
+Merge: a215853545 92481d1b26
+Author: Junio C Hamano <gitster@pobox.com>
+Date:   Mon Oct 10 10:08:43 2022 -0700
+
+    Merge branch 'js/merge-ort-in-read-only-repo'
+    
+    In read-only repositories, "git merge-tree" tried to come up with a
+    merge result tree object, which it failed (which is not wrong) and
+    led to a segfault (which is bad), which has been corrected.
+    
+    * js/merge-ort-in-read-only-repo:
+      merge-ort: return early when failing to write a blob
+      merge-ort: fix segmentation fault in read-only repositories
+-----------------------------------------------
+
+The line "* js/merge-ort-in-read-only-repo" is a summary line that indicates that the branch was merged, and the two lines below are brief descriptions of individual commits that were included as part of the merge.  This told me that the commit that made the fix must have had "fix segmentation fault in read-only repositories" in its commit message.  So, I ran
+
+$ git log --grep="fix segmentation fault in read-only repositories"
+
+And found that the original commit, authored by Johannes Schindelin, was the following:
+
+-----------------------------------------------
+commit 0b55d930a69692c7f4e7b90e35fa41f6c46df4bc
+Author: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+Date:   Wed Sep 28 07:29:21 2022 +0000
+
+    merge-ort: fix segmentation fault in read-only repositories
+    
+    If the blob/tree objects cannot be written, we really need the merge
+    operations to fail, and not to continue (and then try to access the tree
+    object which is however still set to `NULL`).
+    
+    Let's stop ignoring the return value of `write_object_file()` and
+    `write_tree()` and set `clean = -1` in the error case.
+    
+    Reviewed-by: Elijah Newren <newren@gmail.com>
+    Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
+    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+-----------------------------------------------
+
+To see the patches, I then ran
+
+$ git show 0b55d930a69692c7f4e7b90e35fa41f6c46df4bc
+
+This told me that the two files changed were "merge-ort.c" and "merge-tree-write-tree.sh". I ran the following command to generate the patch file:
+
+$ git format-patch -1 0b55d930a69692c7f4e7b90e35fa41f6c46df4bc -o ~/CS35L/patch/
+

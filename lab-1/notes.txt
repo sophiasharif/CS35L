@@ -1,0 +1,164 @@
+=========
+  Lab 1
+=========
+
+---- Lab 1.3 ----
+
+1.3.6: The first non-ASCII character is u+65292
+
+
+---- Lab 1.4 ----
+
+1.4.8: There were 6 occurrences
+
+---- Lab 1.5 ----
+
+(1) 
+
+command: which sh
+/usr/bin/sh
+
+command: which sleep
+/usr/local/cs/bin/sleep
+
+command: which type
+/usr/bin/type
+
+(2) 
+
+commands used:
+cd user/bin
+ls | grep "\bse.\b" (search files in current directory for regex pattern)
+
+=> sed, seq
+
+Seq outputs a sequence of numbers to stdout, and sed allows to edit text files in a scriptable manner.
+
+(3)
+
+command: readlink -f /usr/local/cs/bin/emacs
+/usr/local/cs/emacs-28.2/bin/emacs-28.2
+
+(4)
+
+Command: /usr/bin/gcc -v
+gcc version 8.5.0 20210514 (Red Hat 8.5.0-4) (GCC) 
+
+Command: gcc -v
+gcc version 12.2.0 (GCC) 
+
+These are different because the gcc executable the system uses by default is located in /usr/local/cs/bin/gcc, not /usr/bin/gcc. The default script used is determined by the order of the directories listed in $PATH; earlier directories are searched first, and the first match found is the one executed.
+
+(5)
+
+u+sx: Adds the setuid (s) and execute (x) permissions to the owner (u) of the file. A setuid executable will run as the user who owns the program instead of the user who invoked the program. The execute permission allows the owner to execute the file.
+
+o-w: Removes the write (-w) permission from others (o) who are not the owner or in the group of the file. This prevents other users from modifying the file.
+
+(6) 
+
+command: find /usr/local/cs -type d -mtime -9 | sort | head -10
+/usr/local/cs
+/usr/local/cs/findutils-4.9.0
+/usr/local/cs/findutils-4.9.0/bin
+/usr/local/cs/findutils-4.9.0/libexec
+/usr/local/cs/findutils-4.9.0/share
+/usr/local/cs/findutils-4.9.0/share/info
+/usr/local/cs/findutils-4.9.0/share/locale
+/usr/local/cs/findutils-4.9.0/share/locale/be
+/usr/local/cs/findutils-4.9.0/share/locale/be/LC_MESSAGES
+/usr/local/cs/findutils-4.9.0/share/locale/bg
+
+(7)
+
+Using the command "which find", I discovered my find executable is located in /usr/bin. Then I ran "find /usr/bin/ -type l | wc --line" to find that there are 258 symbolic links in "/usr/bin" on linux server 12.
+
+(8)
+
+Command: find /usr/lib64 -maxdepth 1 -printf '%T+ %p\n' | sort | head -n 1
+File: 2018-08-12+00:51:50.0000000000 /usr/lib64/libbz2.so
+
+9)
+
+"C-h a" in emacs finds all commands matching a regex search. Searching "transpose" yielded:
+
+transpose-chars               C-t
+   Interchange characters around point, moving forward one character.
+transpose-lines               C-x C-t
+   Exchange current line and previous line, leaving point after both.
+transpose-paragraphs          M-x ... RET
+   Interchange the current paragraph with the next one.
+transpose-sentences           M-x ... RET
+   Interchange the current sentence with the next one.
+transpose-sexps               C-M-t
+   Like \[transpose-chars] (`transpose-chars'), but applies to sexps.
+transpose-words               M-t
+   Interchange words around point, leaving point at end of them.
+
+(10)
+
+The yank function pastes the most recently copied or cut text into the current location of the cursor. (It's similar to paste in other text editors). We use "C-y" to yank in Emacs after copying or cutting the desired text.
+
+(11)
+
+Running ls -l shows you how many disk blocks are used by all the files in the directory. The Emacs version shows you the current directory and shows you the total disk space used out of the disk space available. 
+
+(12) 
+
+See shell script q12script.sh.
+
+Output:
+
+PARENTS:
+	1183596 1183618 sshd
+	1699 1183596 sshd
+	1 1699 sshd
+	0 1 systemd
+CHILDREN:
+	q12script.sh 1266663
+
+
+Script Logic: 
+
+To find the parents, I set the argument variable to the line containing "bash" in ps. Then, while the PID of the current process was not 0 (the parent of all processes), I set the argument variables to be the result of using ps to search for the process that had a PID of PPID.
+
+To find the children, I wrote a recursive function that uses pgrep to find all the processes that have a PPID of the PID passed in as a parameter. Then, the function is recursively called on each child to find their children.
+
+---- Lab 1.6 ----
+
+(1) 
+
+M-x make-directory RET ~/junk RET
+M-x dired RET junk RET
+C-x C-F hello.c
+
+(2)
+
+M-x compile RET gcc -o hello hello.c RET
+
+(3)
+
+M-! ./hello 1>hello-a1 2>hello-a2
+
+
+===============
+   Homework
+===============
+
+tr -c 'A-Za-z' '[\n*]' - replace any characters that are not letters with newlines.
+
+tr -cs 'A-Za-z' '[\n*]' - replace any characters that are not letters with newlines, and then squeeze any sequence of multiple newlines into a single newline.
+
+tr -cs 'A-Za-z' '[\n*]' | sort - replace any characters that are not letters with newlines, and then squeeze any sequence of multiple newlines into a single newline, and then sorts.
+
+tr -cs 'A-Za-z' '[\n*]' | sort -u - replace any characters that are not letters with newlines, and then squeeze any sequence of multiple newlines into a single newline, and then sorts the output, discarding any duplicate words.
+
+tr -cs 'A-Za-z' '[\n*]' | sort -u | comm - sorted.words
+Uses the output from the command explained above as input for comm, which then outputs three tab-separated columns. The first column contains lines only in the first line, the second lines only in the second file, and the third lines common to both files.
+
+tr -cs 'A-Za-z' '[\n*]' | sort -u | comm -23 - sorted.words
+Similar to the above, but instead only outputs lines displayed in the first file.
+
+
+SCRIPT LOGIC:
+First, we use the tr command to do an initial scan through the words, additionally whilelisting the characters that show up within words in linux.words. We sort those and find any words that do not appear in sorted.words. Now, to take care of extraneous punctuation, we sift through the list once more, this time trimming all characters that are not letters. We compare this list to sorted.words again to filter out any legitimate words.

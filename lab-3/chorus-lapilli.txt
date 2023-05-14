@@ -1,0 +1,83 @@
+===== Documentation ======:
+
+--- Instructions ----
+
+npm run dev to start server (project created with Vite).
+	
+If all three pieces aren't placed down yet, simple click on a tile to place a piece on it. If all three pieces have been placed, the first click selects a piece to move, and the second click places it on a tile. If a tile is illegal to move on, nothing happens.
+
+--- npm pack results ----
+
+npm notice 📦  tic-tac-toe@1.1.2
+npm notice === Tarball Contents === 
+npm notice 103B  README.md       
+npm notice 15B   contributors.txt
+npm notice 6.0kB index.js        
+npm notice 609B  package.json    
+npm notice === Tarball Details === 
+npm notice name:          tic-tac-toe                             
+npm notice version:       1.1.2                                   
+npm notice filename:      tic-tac-toe-1.1.2.tgz                   
+npm notice package size:  2.2 kB                                  
+npm notice unpacked size: 6.7 kB                                  
+npm notice shasum:        2787c18ee8b618cd98bbc2076896cc51b995cf9b
+npm notice integrity:     sha512-fvlq1aNw9MiIN[...]coNzj1EkhQKBg==
+npm notice total files:   4     
+tic-tac-toe-1.1.2.tgz
+
+
+====== Project Log ======
+
+--- Project Setup ---
+
+Since there is so much overlap between tic-tac-toe and chorus lapilli, I decided to use the tic-tac-toe project on my local development environment as a starting point for my project. I deleted all the code relating to the history feature of the React tic-tac-toe game tutorial. Below is a summary of the steps I took.
+
+I got started by creating Square and Board components. The board is 3 squares in width and height. The board is then nested into the App component, which ultimately displays the application.
+
+As I was playing around with props, I noticed that you can set default values for props; by setting value="" in the parameter declaration, I made it so that the square is empty by default but takes a value as an optional prop.
+
+I continued to follow the tutorial and got state working within my Square components.
+
+After I lifted state to the board, my handleClick function stopped working because the state it accessed was no longer defined, so I had to delete it.
+
+I redefined the handleClick function in the Board component, and passed the function into the Square component. To avoid causing an infinite loop by calling the function in the prop declaration, per the tutorial's recommendation, I used the JavaScript arrow syntax to define mini-functions within the props.
+
+--- General Plan ---
+
+I realized that there are two different types of moves in the game:
+
+	(a) A player hasn't placed all three of their pieces on the board yet, so they need to place a new piece. To fulfill their turn, the player just needs to click on the square they would like to place their piece on.
+	(b) A player has placed all their pieces on the board and must move a piece. To fulfill their turn, a player must first "select" a piece to move, and then choose a new spot on the board to place it.
+
+To handle these two different moves in the game, I split the handleClick function into three branches. The first branch runs if the current player does not yet have three pieces on the board and runs the placeNewPiece function. This function is just the code from the React tutorial. If the first branch is not taken, the function movePiece is instead called.  (I used JavaScript's Array.filter() method to find the number of turns a player has taken). Here is an overview:
+
+   handleClick control flow:
+      - we have a winner
+        - clicking on any square does nothing
+      - a player hasn't used all their pieces
+        - clicking on an existing square does nothing
+        - clicking on an empty square places a new piece
+      - all squares used
+        - clicking on an existing square selects it
+        - if a square is not selected, clicking on an empty tile does nothing.
+        - if a square is selected, clicking on an empty tile deletes the selected square and
+            places a new piece on the clicked tile.
+
+
+To make the control flow described above work, I had to create a selectedSquare state and implement a movePiece function. movePiece works similarly to place piece, but also sets the square at index selectedSquare to null and then later sets the selectedSquare state to null.
+
+I decided that if the user needs to move a square, they must first click on a piece they have already placed to "select" it and then click on a new, empty square to place the piece.
+
+I also decided to implement an isLegalMove function to check all the cases in which the player had already places all their pieces.
+
+--- isLegalMove ---
+
+First, I calculate the row and column of both the selected square and the new square were no more than one away. If they aren't, we know the move is not legal. If that criterion is satisfied, we also need to check that if the player has used all their center pieces, has a piece in the center, and does not plan to move their center piece, that their move is a winning one.
+
+
+--- Finishing Touches --- 
+
+I made some CSS changes to make the game look a bit nicer. I was also having a strange issue where my button would move around depending on whether they had a value or not; I fixed this by changing the padding.
+
+
+

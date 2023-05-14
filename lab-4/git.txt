@@ -1,0 +1,11 @@
+git log 2012j..2022g --pretty="Commit Date: %cd%n" | ./tzcount
+
+The repository from the GitHub website only has one branch, which indicates that they use rebasing to keep their git history clean.  The one on the SEASnet machines, on the other hand, contains 5 branches, which indicates that this version is at least not fully rebased:
+
+  maint
+* master
+  next
+  seen
+  todo
+
+These branches are likely there to help with the developer workflow. I also compared the number of commits in each repository using "git rev-list --all --count", and found that the repo from SEASnet had 71919 commits, while the one on GitHub has 72822 commits. This indicates that the GitHub git repository is more up-to-date.

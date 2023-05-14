@@ -1,0 +1,72 @@
+==============
+Lisp Scripting
+==============
+
+--- 2.1 ----
+
+(1)
+
+( * (expt 2 (- 607 1)) (- (expt 2 607) 1))
+141053783706712069063207958086063189881486743514715667838838675999954867742652380114104193329037690251561950568709829327164087724366370087116731268159313652487450652439805877296207297446723295166658228846926807786652870188920867879451478364569313922060370695064736073572378695176473055266826253284886383715072974324463835300053138429460296575143368065570759537328128
+
+# of bits:
+By properties of logs, 
+log2( 2**(607 - 1) * (2**607 - 1)) )
+ = log2(2**(607 - 1)) + log2 ((2**607 - 1))
+ = 606 + log2 (2**607 - 1)
+
+Lisp expression: (+ 606 (log ( - (expt 2 607) 1) 2))
+=> 1213
+
+(2)
+
+C-h k C-h k shows the description of the command "C-h k" (describe key). This happens because the C-h k command takes an Emacs shortcut as an input and displays the information about that command.
+
+
+(3)
+
+C-h k M-SPC shows the description for the "just one space" command. Similarly, this happens because C-h k listens for a command and displays what that command does.
+
+(4)
+
+From looking at the source code, we can see that the function is called cycle-spacing. Thus, we can achieve the same effect as just-one-space by typing M-: (cycle-spacing) RET or M-x cycle-spacing RET.
+
+==========
+ Homework
+==========
+
+What happens when this script is invoked on an empty file like /dev/null, and why?
+=> We get an IndexError because /dev/null is an empty file, which means that self.lines is an empty array. Because of this, there are no items to access. This results in the IndexError.
+
+What happens when this script is invoked with Python 3 rather than Python 2, and why?
+=> This throws a SyntaxError because of the line "except IOError as (errno, strerror)"; python3 deprecated tuple unpacking so this type of code is no longer functional.
+
+What happens when your shuf.py script is invoked with Python 2 rather than Python 3, and why?
+=> My shuf.py fails because I use fstrings to format my strings when printing them to standard output, which is a feature new in python3. Because of this, I running my script with Python 2 results in a SyntaxError
+
+
+PERFORMANCE 
+(times reported are the same of user and system times) 
+
+CPU model: Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz
+OS version: 8.6
+
+---- Coreutils shuf ---- 
+1) 0.065s
+2) 0.063s
+3) 0.063s
+=> RESULT: 0.063s
+
+---- Python 3.11 shuf.py ----
+1) 0.545s
+2) 0.553s
+3) 0.564s
+=> RESULT: 0.553s
+
+---- Python 3.6 shuf.py ----
+1) 0.903s
+2) 0.898s
+3) 0.889s
+=> RESULT: 0.898s
+
+
