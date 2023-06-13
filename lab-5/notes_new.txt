@@ -1,0 +1,83 @@
+To clone repo:
+
+Open tarball: tar -xf randall-git.tgz
+git clone /path/to/directory/.git
+
+Understanding the code:
+
+There is a set of three functions for both the hardware random number generation and the software random generation. These three functions are an initializer function, a rand64 function, and a finalize function. If the hardware suppports the hardware random number generation, then we initialize three function pointers to point to the three hardware functions; if it does not, then they point to the three software functions.
+
+There is also a write bytes function that does not seem to function properly. It seems like the function attempts to take an unsigned long long x (an 8-byte value) and an byte parameter, and ultimately extract nbytes total bytes from x. The function does this by using the fact that getchar() will only print the least significant byte of x, and then shifting x nbytes number of times, thus passing a different byte to getchar() each iteration of the loop. Since x is a 8-byte value, the maximum number of bytes we can extract is 8. However, seems like this function is not working properly, as we are not printing the correct number of bytes to stdout.
+
+      update: it turns out it was working correctly all along, I was just using the wrong wc flag to check it. wc -m counts the number of characters, when we are really interested in the number of bytes, which is instead counted by wc -c. It turns out my make check test was incorrect all along.
+
+In the main() function, the code does some very basic error check that I will have to greatly improve upon in my code. Then, it sets the three function pointers mentioned before to the appropriate functions. The main part of the code is a loop that calls writebytes() as many times as necessary to print out nbytes random bytes. The code also does some checking at the end to ensure that none of the functions within the loop exited with a failing exit status.
+
+To moduleralize code:
+
+Create all .c and .h files.
+Work on modules one at a time to avoid getting into an unworkable about of bugs.
+Copy the desired code into the .c file.
+All functions were static originally, which makes them private to the file. Change any function you want to export into the randall.c file to non-static, but keep any functions that can remain private to that file as static.
+Add appropriate #include statements at the top of the .c file, and remove any now-redundant .c files from the randall.c file.
+Don't include declarations for static functions in the .h file, as those cannot be shared with other files.
+Add #include <FILE.h> at the top of randall.c
+
+Editing Makefile:
+
+Name before the colon is called the target
+Everything after the colon are the dependencies for that target
+Below that declaration is the "recipe" to compiling that target (it is a shell script that gets executed).
+The targets listed in .PHONY are called "phony targets" because they are not tied to any file, they are just there for convenience in compiling. (For example, make clean is a useful command that is not dependent on any file.)
+Add all modules to dependency list of make and add them to the gcc command.
+
+Options processing
+
+I created a parse_options function that takes argc and argv as parameters. This function returns an options struct that contains all the information regarding the options selected the rest of the code needs to know in a easy-to-use package.
+First, I checked that the number of arguments is either 2, 4, or 6, as these are the only possible combinations under the constrains given. This is a nice way to catch simple errors in entering the command.
+Next, I had a loop that used the getopt() function to extract the options from argv. Within the body of the loop is a switch statement that handles saving the options and error checking.
+Since getopt() moves all non-option arguments to the end of argv, I then added a check that there is exactly one positional argument, taking advantage of the fact that optind will now point to the end of the last option. If there isn't exactly one positional argument, the code throws and error.
+Since the output parameter can either be a string or an integer, saving the output is a bit more complicated than saving the input. I saved my output into the opts configuration struct in two peices of information: the output_method and nbytes. I saved output_method to be "stdio" by default or if "stdio" was passed as a parameter, or "write" if instead a number of bytes is provided. If the output method was write, I used the method to convert a string into an integer in the original code.
+Similarly, to convert nbytes into an integer, I used the processing and error checking provided in the original code.
+
+Generating random numbers
+
+I used very similar structure to that of the original program for this step, but I had three sets of three functions instead of two, as we were required to implement a set of functions that uses the rand48 library.
+
+Generating output
+
+There were two branches to the code here: one for the stdio output option, and the other for the write option.
+For stdio, I adapted the original code using the putchar() function. There were not too many changes to make.
+To write blocks of bytes at once, I wrote a while loop that calls the write_block() function I wrote repeatedly until all the bytes have been printed out. This involves allocating a buffer the size of the block before the loop begins, passing it as a parameter to the write_block() function, and then freeing it once the loop has completed. Aside from error checking, the write_block() function involved a memcpy() to overwrite the buffer and then printing it with write().
+
+
+TIMING RESULTS:
+
+time dd if=/dev/urandom ibs=8192 obs=8192 count=16384 >/dev/null
+
+16384+0 records in
+16384+0 records out
+134217728 bytes (134 MB, 128 MiB) copied, 0.92745 s, 145 MB/s
+
+real	0m0.931s
+user	0m0.014s
+sys	0m0.912s
+
+time ./randall 133562368 >/dev/null
+
+real	0m3.114s
+user	0m3.093s
+sys	0m0.010s
+
+time ./randall 133562368 | cat >/dev/null
+
+real	0m3.263s
+user	0m3.164s
+sys	0m0.260s
+
+time ./randall 133562368 >rand.data
+
+real	0m4.875s
+user	0m3.110s
+sys	0m0.134s
+
