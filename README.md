@@ -10,3 +10,6 @@ These are my projects from CS 35L (Software Contruction Lab) in Spring 2023 with
 | _Assignment 4_: <br> Basic Change Management   | 85 | 68 |
 | _Assignment 5:_ <br> Low-level Refactoring and Performance   | 100 | 58 |
 | _Assignment 6_: <br> Git Repository Organization   | 100 | 78 |
+
+
+![](https://view-counter.onrender.com/gh-CS35L)
